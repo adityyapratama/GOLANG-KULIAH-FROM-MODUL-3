@@ -2,24 +2,30 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/lib/pq"
 )
 
 var DB *sql.DB
 
-func ConnectDB()  {
-	dsn := "host=localhost user=postgres password=password dbname=BackendGolangg port=5433 sslmode=disable"
-	
-	DB, err := sql.Open("postgres", dsn)
-	if err != nil {
-		log.Fatal("gagal koneksi ke database",err)
+func ConnectDB() error {
+	dsn := os.Getenv("DB_DSN")
+	if dsn == "" {
+		log.Fatal("❌ DB_DSN tidak ditemukan di .env")
 	}
 
-	if err = DB.Ping(); err != nil {
-	log.Fatal("Gagal ping database:", err)
-}
-	fmt.Println("Berhasil terhubung ke database PostgreSQL")
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		return err
+	}
+
+	if err := db.Ping(); err != nil {
+		return err
+	}
+
+	DB = db
+	log.Println("✅ Berhasil terhubung ke PostgreSQL")
+	return nil
 }

@@ -3,20 +3,34 @@ package main
 import (
 	"golang-kuliah-from-modul-3/config"
 	"golang-kuliah-from-modul-3/database"
-	"golang-kuliah-from-modul-3/route"
+	
+
+	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	database.ConnectDB()
+	// Load .env
+	if err := godotenv.Load(); err != nil {
+		log.Println("⚠️ Tidak menemukan file .env, pakai environment system")
+	}
+
+	// Connect DB
+	if err := database.ConnectDB(); err != nil {
+		log.Fatal("❌ Gagal konek DB:", err)
+	}
 	defer database.DB.Close()
 
-	
+	// Init Fiber app
 	app := config.NewApp()
-	route.RegisterRoutes(app, db)
+	
+
+	// Jalankan server
 	port := os.Getenv("APP_PORT")
 	if port == "" {
 		port = "3000"
 	}
-	app.Listen(":" + port)
+	log.Fatal(app.Listen(":" + port))
 }

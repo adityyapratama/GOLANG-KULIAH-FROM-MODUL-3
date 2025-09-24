@@ -1,17 +1,23 @@
 package config
 
 import (
-	"database/sql"
 	"golang-kuliah-from-modul-3/app/service"
 	"golang-kuliah-from-modul-3/middleware"
+	"golang-kuliah-from-modul-3/route"
+
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewApp(db *sql.DB) *fiber.App {
-	app := fiber.New()
-	app.Use(middleware.LoggerMiddleware)
-	app.Post("/check/:key", func(c *fiber.Ctx) error {
-		return service.(c, db)
-	})
-	return app
+func NewApp() *fiber.App {
+    app := fiber.New()
+
+    // Middleware global
+    app.Use(middleware.LoggerMiddleware)
+
+    // Route khusus check alumni
+    app.Post("/check/:key", service.GetAllAlumni)
+    
+    route.RegisterRoutes(app)
+
+    return app
 }

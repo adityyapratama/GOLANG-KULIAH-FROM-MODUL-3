@@ -43,7 +43,7 @@ func GetPekerjaanByAlumniID(c *fiber.Ctx) error {
         return c.Status(400).JSON(fiber.Map{"error": "Alumni ID tidak valid"})
     }
 
-    list, err := repository.GetPekerjaanByID(ctx, alumniID)
+    list, err := repository.GetPekerjaanByAlumniID(ctx, alumniID)
     if err != nil {
         return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil data pekerjaan"})
     }
