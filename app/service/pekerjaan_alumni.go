@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// GET /api/pekerjaan
+
 func GetAllPekerjaan(c *fiber.Ctx) error {
     ctx := c.Context()
     list, err := repository.GetAllPekerjaan(ctx)
@@ -19,7 +19,7 @@ func GetAllPekerjaan(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": list})
 }
 
-// GET /api/pekerjaan/:id
+
 func GetPekerjaanByID(c *fiber.Ctx) error {
     ctx := c.Context()
     id, err := strconv.Atoi(c.Params("id"))
@@ -35,7 +35,7 @@ func GetPekerjaanByID(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": p})
 }
 
-// GET /api/pekerjaan/alumni/:alumni_id
+
 func GetPekerjaanByAlumniID(c *fiber.Ctx) error {
     ctx := c.Context()
     alumniID, err := strconv.Atoi(c.Params("alumni_id"))
@@ -51,7 +51,7 @@ func GetPekerjaanByAlumniID(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": list})
 }
 
-// POST /api/pekerjaan
+
 func CreatePekerjaan(c *fiber.Ctx) error {
     ctx := c.Context()
     var req model.CreatePekerjaanRequest
@@ -59,7 +59,7 @@ func CreatePekerjaan(c *fiber.Ctx) error {
         return c.Status(400).JSON(fiber.Map{"error": "Request body tidak valid"})
     }
 
-    // Convert ke model.Pekerjaan
+    
     tanggalMulai, err := time.Parse("2006-01-02", req.TanggalMulaiKerja)
     if err != nil {
         return c.Status(400).JSON(fiber.Map{"error": "Format tanggal_mulai_kerja harus YYYY-MM-DD"})
@@ -97,7 +97,7 @@ func CreatePekerjaan(c *fiber.Ctx) error {
     return c.Status(201).JSON(fiber.Map{"success": true, "data": pekerjaan})
 }
 
-// PUT /api/pekerjaan/:id
+
 func UpdatePekerjaan(c *fiber.Ctx) error {
     ctx := c.Context()
     id, err := strconv.Atoi(c.Params("id"))
@@ -150,7 +150,7 @@ func UpdatePekerjaan(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": pekerjaan})
 }
 
-// DELETE /api/pekerjaan/:id
+
 func DeletePekerjaan(c *fiber.Ctx) error {
     ctx := c.Context()
     id, err := strconv.Atoi(c.Params("id"))

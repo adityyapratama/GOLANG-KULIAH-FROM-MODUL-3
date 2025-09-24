@@ -19,7 +19,7 @@ func GetAllAlumni(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": list})
 }
 
-// GET /api/alumni/:id
+
 func GetAlumniByID(c *fiber.Ctx) error {
     ctx := c.Context()
     id, err := strconv.Atoi(c.Params("id"))
@@ -35,7 +35,7 @@ func GetAlumniByID(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": alumni})
 }
 
-// POST /api/alumni
+
 func CreateAlumni(c *fiber.Ctx) error {
     ctx := c.Context()
     var req model.Alumni
@@ -57,7 +57,7 @@ func CreateAlumni(c *fiber.Ctx) error {
     return c.Status(201).JSON(fiber.Map{"success": true, "data": req})
 }
 
-// PUT /api/alumni/:id
+
 func UpdateAlumni(c *fiber.Ctx) error {
     ctx := c.Context()
     id, err := strconv.Atoi(c.Params("id"))
@@ -84,7 +84,7 @@ func UpdateAlumni(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": req})
 }
 
-// DELETE /api/alumni/:id
+
 func DeleteAlumni(c *fiber.Ctx) error {
     ctx := c.Context()
     id, err := strconv.Atoi(c.Params("id"))

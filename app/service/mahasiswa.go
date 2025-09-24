@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// GET /api/mahasiswa
+
 func GetAllMahasiswa(c *fiber.Ctx) error {
     ctx := c.Context()
     list, err := repository.GetAllMahasiswa(ctx)
@@ -19,7 +19,7 @@ func GetAllMahasiswa(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": list})
 }
 
-// GET /api/mahasiswa/:id
+
 func GetMahasiswaByID(c *fiber.Ctx) error {
     ctx := c.Context()
     id, err := strconv.Atoi(c.Params("id"))
@@ -35,7 +35,7 @@ func GetMahasiswaByID(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": m})
 }
 
-// POST /api/mahasiswa
+
 func CreateMahasiswa(c *fiber.Ctx) error {
     ctx := c.Context()
     var req model.Mahasiswa
@@ -57,7 +57,7 @@ func CreateMahasiswa(c *fiber.Ctx) error {
     return c.Status(201).JSON(fiber.Map{"success": true, "data": req})
 }
 
-// PUT /api/mahasiswa/:id
+
 func UpdateMahasiswa(c *fiber.Ctx) error {
     ctx := c.Context()
     id, err := strconv.Atoi(c.Params("id"))
@@ -84,7 +84,7 @@ func UpdateMahasiswa(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": req})
 }
 
-// DELETE /api/mahasiswa/:id
+
 func DeleteMahasiswa(c *fiber.Ctx) error {
     ctx := c.Context()
     id, err := strconv.Atoi(c.Params("id"))
