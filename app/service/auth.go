@@ -1,39 +1,18 @@
 package service
 
 import (
-	"context"
 	"database/sql"
 	"golang-kuliah-from-modul-3/app/model"
 	"golang-kuliah-from-modul-3/app/repository"
 	"golang-kuliah-from-modul-3/utils"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/lib/pq"
 )
 
-// Login performs login logic and returns a token and user
-func Login(ctx context.Context, identifier string, password string) (*model.User, string, error) {
-	user, passwordHash, err := repository.GetUserByIdentifier(ctx, identifier)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, "", fiber.ErrUnauthorized
-		}
-		return nil, "", err
-	}
-
-	if !utils.CheckPassword(password, passwordHash) {
-		return nil, "", fiber.ErrUnauthorized
-	}
-
-	token, err := utils.GenerateToken(*user)
-	if err != nil {
-		return nil, "", err
-	}
-
-	return user, token, nil
-}
-
-// LoginHandler is a Fiber handler example that uses the service Login function
-func LoginHandler(c *fiber.Ctx) error {
+func Login(c *fiber.Ctx) error {
+	// Parsing Request Body (Tugas Handler)
 	var req model.LoginRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Request body tidak valid"})
@@ -42,14 +21,101 @@ func LoginHandler(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Username dan password harus diisi"})
 	}
 
-	user, token, err := Login(c.Context(), req.Username, req.Password)
+	
+	user, passwordHash, err := repository.UserLogin(c.Context(), req.Username)
 	if err != nil {
-		if err == fiber.ErrUnauthorized {
+		if err == sql.ErrNoRows {
+			
 			return c.Status(401).JSON(fiber.Map{"error": "Username atau password salah"})
 		}
+		
 		return c.Status(500).JSON(fiber.Map{"error": "Error server"})
 	}
 
-	resp := model.LoginResponse{User: *user, Token: token}
-	return c.JSON(fiber.Map{"success": true, "message": "Login berhasil", "data": resp})
+	
+	if !utils.CheckPassword(req.Password, passwordHash) {
+		return c.Status(401).JSON(fiber.Map{"error": "Username atau password salah"})
+	}
+
+	
+	token, err := utils.GenerateToken(*user)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal membuat token"})
+	}
+
+	
+
+	
+	response := model.LoginResponse{User: *user, Token: token}
+	return c.JSON(fiber.Map{"success": true, "message": "Login berhasil", "data": response})
+}
+
+
+
+func Register(c *fiber.Ctx) error {
+	// 1. Parsing Request Body
+	var req model.RegisterRequest
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Request body tidak valid"})
+	}
+
+	// 2. Validasi Input
+	if req.Username == "" || req.Email == "" || req.Password == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Username, email, dan password harus diisi"})
+	}
+	
+	// Default role adalah 'user' jika tidak diisi
+	req.Role = strings.ToLower(req.Role)
+	if req.Role != "admin" && req.Role != "user" {
+		req.Role = "user"
+	}
+
+
+	// 3. Hash Password
+	passwordHash, err := utils.HashPassword(req.Password)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal memproses password"})
+	}
+
+	// 4. Siapkan Model User
+	newUser := model.User{
+		Username: req.Username,
+		Email:    req.Email,
+		Role:     req.Role,
+	}
+
+	// 5. Panggil Repository untuk Menyimpan User
+	if err := repository.CreateUser(c.Context(), &newUser, passwordHash); err != nil {
+		// Cek apakah error disebabkan oleh unique constraint (username/email sudah ada)
+		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code.Name() == "unique_violation" {
+			return c.Status(409).JSON(fiber.Map{"error": "Username atau email sudah terdaftar"})
+		}
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal membuat user"})
+	}
+
+	// 6. Kirim Response
+	return c.Status(201).JSON(fiber.Map{
+		"success": true,
+		"message": "User berhasil dibuat",
+		"data":    newUser,
+	})
+}
+
+
+
+
+
+func GetProfile(c *fiber.Ctx) error {
+		userID := c.Locals("user_id").(int)
+		username := c.Locals("username").(string)
+		role := c.Locals("role").(string)
+		return c.JSON(fiber.Map{
+				"success": true,
+				"message": "Profile berhasil diambil",
+				"data": fiber.Map{
+					"user_id": userID,
+					"username": username,
+					"role": role,
+		},
+	})
 }

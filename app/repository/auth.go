@@ -7,8 +7,7 @@ import (
 	"golang-kuliah-from-modul-3/database"
 )
 
-// GetUserByIdentifier returns a user and its password hash by username or email
-func GetUserByIdentifier(ctx context.Context, identifier string) (*model.User, string, error) {
+func UserLogin(ctx context.Context, userLogin string) (*model.User, string, error) {
 	var user model.User
 	var passwordHash string
 
@@ -17,7 +16,7 @@ func GetUserByIdentifier(ctx context.Context, identifier string) (*model.User, s
 		FROM users
 		WHERE username = $1 OR email = $1
 		LIMIT 1
-	`, identifier).Scan(
+	`, userLogin).Scan(
 		&user.ID,
 		&user.Username,
 		&user.Email,
@@ -33,4 +32,16 @@ func GetUserByIdentifier(ctx context.Context, identifier string) (*model.User, s
 	}
 
 	return &user, passwordHash, nil
+}
+
+
+func CreateUser(ctx context.Context, user *model.User, passwordHash string) error{
+
+	err := database.DB.QueryRowContext(ctx,
+	`INSERT INTO users (username, email, password_hash, role)
+		VALUES ($1, $2, $3, $4) RETURNING id, created_at`,
+		user.Username, user.Email, passwordHash, user.Role).Scan(&user.ID, &user.CreatedAt)
+
+		return  err
+
 }
