@@ -10,8 +10,10 @@ import (
 func RegisterAlumniRoutes(router fiber.Router) {
     alumni := router.Group("/alumni")
 
-    alumni.Get("/", service.GetAllAlumni)
+    // alumni.Get("/", service.GetAllAlumni)
     alumni.Get("/:id", service.GetAlumniByID)
+
+    alumni.Get("/", service.GetAllAlumniShorting)
 
     alumni.Post("/", middleware.AdminOnly(), service.CreateAlumni)
     alumni.Put("/:id", middleware.AdminOnly(), service.UpdateAlumni)

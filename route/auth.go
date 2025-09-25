@@ -13,5 +13,6 @@ func RegisterAuthRoutes(app *fiber.App) {
 	// Rute publik untuk registrasi user baru
 	app.Post("/register", service.Register)
 	app.Get("/register", service.GetProfile)
+	app.Get("/users", service.GetUsersService)
 }
 

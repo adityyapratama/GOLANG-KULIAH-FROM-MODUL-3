@@ -5,6 +5,7 @@ import (
 	"golang-kuliah-from-modul-3/app/model"
 	"golang-kuliah-from-modul-3/app/repository"
 	"golang-kuliah-from-modul-3/utils"
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -28,6 +29,7 @@ func Login(c *fiber.Ctx) error {
 			
 			return c.Status(401).JSON(fiber.Map{"error": "Username atau password salah"})
 		}
+
 		
 		return c.Status(500).JSON(fiber.Map{"error": "Error server"})
 	}
@@ -53,13 +55,13 @@ func Login(c *fiber.Ctx) error {
 
 
 func Register(c *fiber.Ctx) error {
-	// 1. Parsing Request Body
+	// Parsing Request Body
 	var req model.RegisterRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Request body tidak valid"})
 	}
 
-	// 2. Validasi Input
+	// Validasi Input
 	if req.Username == "" || req.Email == "" || req.Password == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Username, email, dan password harus diisi"})
 	}
@@ -71,20 +73,20 @@ func Register(c *fiber.Ctx) error {
 	}
 
 
-	// 3. Hash Password
+	//  Hash Password
 	passwordHash, err := utils.HashPassword(req.Password)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Gagal memproses password"})
 	}
 
-	// 4. Siapkan Model User
+	// Siapkan Model User
 	newUser := model.User{
 		Username: req.Username,
 		Email:    req.Email,
 		Role:     req.Role,
 	}
 
-	// 5. Panggil Repository untuk Menyimpan User
+	//  Panggil Repository untuk Menyimpan User
 	if err := repository.CreateUser(c.Context(), &newUser, passwordHash); err != nil {
 		// Cek apakah error disebabkan oleh unique constraint (username/email sudah ada)
 		if pgErr, ok := err.(*pq.Error); ok && pgErr.Code.Name() == "unique_violation" {
@@ -93,7 +95,7 @@ func Register(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Gagal membuat user"})
 	}
 
-	// 6. Kirim Response
+	// Kirim Response
 	return c.Status(201).JSON(fiber.Map{
 		"success": true,
 		"message": "User berhasil dibuat",
@@ -118,4 +120,60 @@ func GetProfile(c *fiber.Ctx) error {
 					"role": role,
 		},
 	})
+}
+
+
+
+func GetUsersService(c *fiber.Ctx) error {
+	
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	limit, _ := strconv.Atoi(c.Query("limit", "10"))
+	sortBy := c.Query("sortBy", "id")
+	order := c.Query("order", "asc")
+	search := c.Query("search", "")
+
+	
+	offset := (page - 1) * limit
+
+	
+	sortByWhitelist := map[string]bool{
+		"id":         true,
+		"name":       true,
+		"email":      true,
+		"created_at": true,
+	}
+	if !sortByWhitelist[sortBy] {
+		sortBy = "id" 
+	}
+	if strings.ToLower(order) != "desc" {
+		order = "asc" 
+	}
+
+	
+	users, err := repository.GetUserRepo(search, sortBy, order, limit, offset)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil data pengguna"}) 
+	}
+
+	
+	total, err := repository.CountUsersRepo(search)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal menghitung total pengguna"}) 
+	}
+
+	
+	response := model.UserResponse{
+		Data: users,
+		Meta: model.MetaInfo{
+			Page:   page,
+			Limit:  limit,
+			Total:  total,
+			Pages:  (total + limit - 1) / limit, 
+			SortBy: sortBy,
+			Order:  order,
+			Search: search,
+		},
+	}
+	
+	return c.JSON(response) 
 }

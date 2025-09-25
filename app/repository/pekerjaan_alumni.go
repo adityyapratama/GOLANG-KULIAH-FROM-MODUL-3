@@ -10,7 +10,8 @@ import (
 func GetAllPekerjaan(ctx context.Context) ([]model.Pekerjaan, error) {
     rows, err := database.DB.QueryContext(ctx, `
         SELECT id, alumni_id, nama_perusahaan, posisi_jabatan, bidang_industri, lokasi_kerja, gaji_range, tanggal_mulai_kerja, tanggal_selesai_kerja, status_pekerjaan, deskripsi_pekerjaan, created_at, updated_at
-        FROM pekerjaan_alumni ORDER BY created_at DESC`)
+        FROM pekerjaan_alumni WHERE deleted_at IS NULL ORDER BY created_at DESC`)
+        
     if err != nil {
         return nil, err
     }
@@ -94,10 +95,22 @@ func UpdatePekerjaan(ctx context.Context, p *model.Pekerjaan) (int64, error) {
     return result.RowsAffected()
 }
 
+// func DeletePekerjaan(ctx context.Context, id int) (int64, error) {
+//     result, err := database.DB.ExecContext(ctx, "DELETE FROM pekerjaan_alumni WHERE id=$1", id)
+//     if err != nil {
+//         return 0, err
+//     }
+//     return result.RowsAffected()
+// }
+
+
 func DeletePekerjaan(ctx context.Context, id int) (int64, error) {
-    result, err := database.DB.ExecContext(ctx, "DELETE FROM pekerjaan_alumni WHERE id=$1", id)
+    result, err := database.DB.ExecContext(ctx, "UPDATE alumni set deleted_at= NOW() WHERE id = $1 AND deleted_at IS NULL", id)
     if err != nil {
         return 0, err
     }
     return result.RowsAffected()
 }
+
+
+
