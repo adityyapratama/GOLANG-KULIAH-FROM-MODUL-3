@@ -104,13 +104,14 @@ func UpdatePekerjaan(ctx context.Context, p *model.Pekerjaan) (int64, error) {
 // }
 
 
-func DeletePekerjaan(ctx context.Context, id int) (int64, error) {
-    result, err := database.DB.ExecContext(ctx, "UPDATE alumni set deleted_at= NOW() WHERE id = $1 AND deleted_at IS NULL", id)
-    if err != nil {
-        return 0, err
-    }
-    return result.RowsAffected()
+func DeletePekerjaan(ctx context.Context, pekerjaanID int, deletedByID int) (int64, error) {
+	result, err := database.DB.ExecContext(ctx,
+		"UPDATE pekerjaan_alumni SET deleted_at = NOW(), deleted_by = $1 WHERE id = $2 AND deleted_at IS NULL",
+		deletedByID, pekerjaanID) 
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }
-
 
 

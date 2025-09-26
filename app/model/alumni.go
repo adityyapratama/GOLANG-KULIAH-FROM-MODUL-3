@@ -4,6 +4,7 @@ import "time"
 
 type Alumni struct {
 	ID         int       `json:"id"`
+	UserID     int        `json:"user_id"`
 	NIM        string    `json:"nim"`
 	Nama       string    `json:"nama"`
 	Jurusan    string    `json:"jurusan"`
@@ -15,4 +16,5 @@ type Alumni struct {
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 	DeletedAt  *time.Time `json:"deleted_at,omitempty"`
+	
 }

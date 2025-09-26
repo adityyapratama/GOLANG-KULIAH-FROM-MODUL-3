@@ -16,5 +16,12 @@ func RegisterAlumniPekerjaanRoutes(router fiber.Router) {
     alumni.Get("/alumni/:alumni_id", middleware.AdminOnly(), service.GetPekerjaanByAlumniID)
     alumni.Post("/",  middleware.AdminOnly(),service.CreatePekerjaan)
     alumni.Put("/:id", middleware.AdminOnly(),service.UpdatePekerjaan)
-    alumni.Delete("/:id", middleware.AdminOnly(), service.DeletePekerjaan)
+    alumni.Delete("/:id",service.DeletePekerjaanByUser)
+
+
+    
+    
+
+    
+    
 }

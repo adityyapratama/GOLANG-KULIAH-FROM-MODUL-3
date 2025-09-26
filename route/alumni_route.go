@@ -18,4 +18,6 @@ func RegisterAlumniRoutes(router fiber.Router) {
     alumni.Post("/", middleware.AdminOnly(), service.CreateAlumni)
     alumni.Put("/:id", middleware.AdminOnly(), service.UpdateAlumni)
     alumni.Delete("/:id",middleware.AdminOnly(),service.DeleteAlumni)
+
+    
 }

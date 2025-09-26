@@ -41,4 +41,18 @@ type JWTClaims struct {
 		Username string `json:"username"`
 		Role string `json:"role"`
 		jwt.RegisteredClaims
+		
+}
+
+
+type ProfileData struct {
+	UserID   int    `json:"user_id"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
+}
+
+// ProfileResponse adalah struktur lengkap untuk endpoint /profile
+type ProfileResponse struct {
+	Profile   ProfileData `json:"profile"`
+	Pekerjaan []Pekerjaan `json:"pekerjaan"`
 }

@@ -151,20 +151,20 @@ func UpdatePekerjaan(c *fiber.Ctx) error {
 }
 
 
-func DeletePekerjaan(c *fiber.Ctx) error {
-    ctx := c.Context()
-    id, err := strconv.Atoi(c.Params("id"))
-    if err != nil {
-        return c.Status(400).JSON(fiber.Map{"error": "ID tidak valid"})
-    }
+// func DeletePekerjaan(c *fiber.Ctx) error {
+//     ctx := c.Context()
+//     id, err := strconv.Atoi(c.Params("id"))
+//     if err != nil {
+//         return c.Status(400).JSON(fiber.Map{"error": "ID tidak valid"})
+//     }
 
-    rows, err := repository.DeletePekerjaan(ctx, id)
-    if err != nil {
-        return c.Status(500).JSON(fiber.Map{"error": "Gagal hapus pekerjaan"})
-    }
-    if rows == 0 {
-        return c.Status(404).JSON(fiber.Map{"error": "Pekerjaan tidak ditemukan"})
-    }
+//     rows, err := repository.DeletePekerjaan(ctx, id)
+//     if err != nil {
+//         return c.Status(500).JSON(fiber.Map{"error": "Gagal hapus pekerjaan"})
+//     }
+//     if rows == 0 {
+//         return c.Status(404).JSON(fiber.Map{"error": "Pekerjaan tidak ditemukan"})
+//     }
 
-    return c.JSON(fiber.Map{"success": true, "message": "Pekerjaan berhasil dihapus"})
-}
+//     return c.JSON(fiber.Map{"success": true, "message": "Pekerjaan berhasil dihapus"})
+// }

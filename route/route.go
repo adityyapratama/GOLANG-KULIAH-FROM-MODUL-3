@@ -13,6 +13,8 @@ func RegisterRoutes(app *fiber.App) {
 	api := app.Group("/api", middleware.AuthRequired())
 	
 	api.Get("/profile", service.GetProfile)
+	api.Get("/me/pekerjaan", service.Getuserbyalumni)
+	
 
 	RegisterAlumniRoutes(api)
 	RegisterMahasiswaRoutes(api)

@@ -62,7 +62,7 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	// Validasi Input
-	if req.Username == "" || req.Email == "" || req.Password == "" {
+	if req.Username == "" || req.Email == "" || req.Password == ""{
 		return c.Status(400).JSON(fiber.Map{"error": "Username, email, dan password harus diisi"})
 	}
 	
@@ -107,18 +107,51 @@ func Register(c *fiber.Ctx) error {
 
 
 
+// func GetProfile(c *fiber.Ctx) error {
+// 		userID := c.Locals("user_id").(int)
+// 		username := c.Locals("username").(string)
+// 		role := c.Locals("role").(string)
+		
+// 		return c.JSON(fiber.Map{
+// 				"success": true,
+// 				"message": "Profile berhasil diambil",
+// 				"data": fiber.Map{
+// 					"user_id": userID,
+// 					"username": username,
+// 					"role": role,
+					
+// 		},
+// 	})
+// }
+
+
 func GetProfile(c *fiber.Ctx) error {
-		userID := c.Locals("user_id").(int)
-		username := c.Locals("username").(string)
-		role := c.Locals("role").(string)
-		return c.JSON(fiber.Map{
-				"success": true,
-				"message": "Profile berhasil diambil",
-				"data": fiber.Map{
-					"user_id": userID,
-					"username": username,
-					"role": role,
+	userID := c.Locals("user_id").(int)
+	username := c.Locals("username").(string)
+	role := c.Locals("role").(string)
+
+	listPekerjaan, err := repository.GetUserPekerjaan(c.Context(), userID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": "Gagal mengambil data pekerjaan",
+		})
+	}
+
+
+	response := model.ProfileResponse{
+		Profile: model.ProfileData{
+			UserID:   userID,
+			Username: username,
+			Role:     role,
 		},
+		Pekerjaan: listPekerjaan,
+	}
+
+	
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Profile berhasil diambil",
+		"data":    response,
 	})
 }
 
@@ -176,4 +209,72 @@ func GetUsersService(c *fiber.Ctx) error {
 	}
 	
 	return c.JSON(response) 
+}
+
+
+func DeletedUsers(c *fiber.Ctx) error {
+    ctx := c.Context()
+    id, err := strconv.Atoi(c.Params("id"))
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"error": "ID tidak valid"})
+    }
+
+    rows, err := repository.DeleteUsers(ctx, id)
+    if err != nil {
+        return c.Status(500).JSON(fiber.Map{"error": "Gagal hapus DATA USERS"})
+    }
+    if rows == 0 {
+        return c.Status(404).JSON(fiber.Map{"error": "USERS tidak ditemukan"})
+    }
+
+    return c.JSON(fiber.Map{"success": true, "message": "USERS berhasil dihapus"})
+}
+
+
+
+func Getuserbyalumni(c *fiber.Ctx) error {
+	userID, ok := c.Locals("user_id").(int)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Tidak dapat mengidentifikasi pengguna",
+		})
+	}
+	list, err := repository.GetUserPekerjaan(c.Context(), userID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil data pekerjaan"})
+	}
+
+	return c.JSON(fiber.Map{"success": true, "data": list})
+}
+
+func DeletePekerjaanByUser(c *fiber.Ctx) error {
+	pekerjaanID, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "id pekerjaan tidak valid"})
+	}
+
+	role := c.Locals("role").(string)
+	userID := c.Locals("user_id").(int)
+	ctx := c.Context()
+	var rowsAffected int64
+
+	if role == "admin" {
+		rowsAffected, err = repository.DeletePekerjaan(ctx, pekerjaanID, userID)
+	} else {
+		rowsAffected, err = repository.DeletePekerjaanByUser(ctx, pekerjaanID, userID)
+	}
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal menghapus pekerjaan"})
+	}
+
+	
+	if rowsAffected == 0 {
+		return c.Status(404).JSON(fiber.Map{"error": "Pekerjaan tidak ditemukan atau Anda tidak memiliki akses"})
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Pekerjaan berhasil dihapus",
+	})
 }
