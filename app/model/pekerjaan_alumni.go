@@ -47,3 +47,9 @@ type UpdatePekerjaanRequest struct {
 	StatusPekerjaan     string  `json:"status_pekerjaan"`
 	DeskripsiPekerjaan  *string `json:"deskripsi_pekerjaan"`
 }
+
+
+type TotalMasaKerja struct {
+	Tahun int
+	Bulan int
+}

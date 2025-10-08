@@ -35,6 +35,22 @@ func GetPekerjaanByID(c *fiber.Ctx) error {
     return c.JSON(fiber.Map{"success": true, "data": p})
 }
 
+func GetTotalKerja(c *fiber.Ctx) error {
+    ctx := c.Context()
+    alumniID, err := strconv.Atoi(c.Params("alumni_id"))  
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"error": "ID tidak valid"})
+    }
+
+    p, err := repository.CountWorkAlumni(ctx, alumniID)
+    if err != nil {
+        return c.Status(404).JSON(fiber.Map{"error": "Pekerjaan tidak ditemukan"})
+    }
+
+    return c.JSON(fiber.Map{"success": true, "data": p})
+}
+
+
 
 func GetPekerjaanByAlumniID(c *fiber.Ctx) error {
     ctx := c.Context()
@@ -168,3 +184,125 @@ func UpdatePekerjaan(c *fiber.Ctx) error {
 
 //     return c.JSON(fiber.Map{"success": true, "message": "Pekerjaan berhasil dihapus"})
 // }
+
+
+func GetAllPekerjaanTrash(c *fiber.Ctx) error {
+    ctx := c.Context()
+    list, err := repository.GetAllPekerjaanTrash(ctx)
+    if err != nil {
+        return c.Status(500).JSON(fiber.Map{"error": "Gagal mengambil data pekerjaan"})
+    }
+    return c.JSON(fiber.Map{"success": true, "data": list})
+}
+
+
+
+func DeletePekerjaanTrash(c *fiber.Ctx) error {
+    ctx := c.Context()
+    id, err := strconv.Atoi(c.Params("id"))
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"error": "ID tidak valid"})
+    }
+
+    rows, err := repository.DeletePekerjaanTrash(ctx, id)
+    if err != nil {
+        return c.Status(500).JSON(fiber.Map{"error": "Gagal hapus pekerjaan"})
+    }
+    if rows == 0 {
+        return c.Status(404).JSON(fiber.Map{"error": "Pekerjaan tidak ditemukan"})
+    }
+
+    return c.JSON(fiber.Map{"success": true, "message": "Pekerjaan berhasil dihapus"})
+}
+
+
+
+
+// func DeletePekerjaanTrashRestore(c *fiber.Ctx) error {
+//     ctx := c.Context()
+//     id, err := strconv.Atoi(c.Params("id"))
+//     if err != nil {
+//         return c.Status(400).JSON(fiber.Map{"error": "ID tidak valid"})
+//     }
+
+//     rows, err := repository.DeletePekerjaanTrashRestore(ctx, id)
+//     if err != nil {
+//         return c.Status(500).JSON(fiber.Map{"error": "Gagal restore data trash pekerjaan"})
+//     }
+//     if rows == 0 {
+//         return c.Status(404).JSON(fiber.Map{"error": "Pekerjaan tidak ditemukan"})
+//     }
+
+//     return c.JSON(fiber.Map{"success": true, "message": "Pekerjaan berhasil di restore"})
+// }
+
+
+
+
+
+
+func RestorePekerjaanByUser(c *fiber.Ctx) error {
+	pekerjaanID, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "id pekerjaan tidak valid"})
+	}
+
+	role := c.Locals("role").(string)
+	userID := c.Locals("user_id").(int)
+	ctx := c.Context()
+	var rowsAffected int64
+
+	if role == "admin" {
+		rowsAffected, err = repository.DeletePekerjaanTrashRestore(ctx, pekerjaanID, userID)
+	} else {
+		rowsAffected, err = repository.RestoreTrashPekerjaanByUser(ctx, pekerjaanID, userID)
+	}
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal restore pekerjaan"})
+	}
+
+	
+	if rowsAffected == 0 {
+		return c.Status(404).JSON(fiber.Map{"error": "Pekerjaan tidak ditemukan atau Anda tidak memiliki akses"})
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Pekerjaan berhasil di restore",
+	})
+}
+
+
+func HardDeletePekerjaanByUserInTrash(c *fiber.Ctx) error {
+	pekerjaanID, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "id pekerjaan tidak valid"})
+	}
+
+	role := c.Locals("role").(string)
+	userID := c.Locals("user_id").(int)
+	ctx := c.Context()
+	var rowsAffected int64
+
+	if role == "admin" {
+		rowsAffected, err = repository.DeletePekerjaanTrash(ctx, pekerjaanID)
+	} else {
+		rowsAffected, err = repository.DeletePekerjaanTrashByUser(ctx, pekerjaanID, userID)
+	}
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal hard delete pekerjaan"})
+	}
+
+	
+	if rowsAffected == 0 {
+		return c.Status(404).JSON(fiber.Map{"error": "Pekerjaan tidak ditemukan atau Anda tidak memiliki akses"})
+	}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "Pekerjaan berhasil di hard delete",
+	})
+}
+

@@ -278,3 +278,4 @@ func DeletePekerjaanByUser(c *fiber.Ctx) error {
 		"message": "Pekerjaan berhasil dihapus",
 	})
 }
+

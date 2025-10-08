@@ -30,11 +30,33 @@ func GetAllAlumni(ctx context.Context) ([]model.Alumni, error) {
     return list, nil
 }
 
+
+func GetAllAlumniTash(ctx context.Context) ([]model.Alumni, error) {
+    rows, err := database.DB.QueryContext(ctx, `
+        SELECT id, nim, nama, jurusan, angkatan, tahun_lulus, email, no_telepon, alamat, created_at, updated_at
+        FROM alumni WHERE deleted_at IS NOT ORDER BY created_at DESC`)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var list []model.Alumni
+    for rows.Next() {
+        var a model.Alumni
+        if err := rows.Scan(&a.ID, &a.NIM, &a.Nama, &a.Jurusan, &a.Angkatan,
+            &a.TahunLulus, &a.Email, &a.NoTelepon, &a.Alamat, &a.CreatedAt, &a.UpdatedAt); err != nil {
+            return nil, err
+        }
+        list = append(list, a)
+    }
+    return list, nil
+}
+
 func GetAlumniByID(ctx context.Context, id int) (*model.Alumni, error) {
     var a model.Alumni
     row := database.DB.QueryRowContext(ctx, `
         SELECT id, nim, nama, jurusan, angkatan, tahun_lulus, email, no_telepon, alamat, created_at, updated_at
-        FROM alumni WHERE id=$1`, id)
+        FROM alumni WHERE id=$1 and deleted_at IS NULL`, id)
 
     if err := row.Scan(&a.ID, &a.NIM, &a.Nama, &a.Jurusan, &a.Angkatan,
         &a.TahunLulus, &a.Email, &a.NoTelepon, &a.Alamat, &a.CreatedAt, &a.UpdatedAt); err != nil {
@@ -128,5 +150,7 @@ func CountAlumni(ctx context.Context, search string) (int, error) {
 	}
 	return total, nil
 }
+
+
 
 
