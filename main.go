@@ -13,6 +13,7 @@ import (
 
 func main() {
 	
+	
 	if err := godotenv.Load(); err != nil {
 		log.Println("⚠️ Tidak menemukan file .env, pakai environment system")
 	}

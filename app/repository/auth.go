@@ -41,7 +41,7 @@ func UserLogin(ctx context.Context, userLogin string) (*model.User, string, erro
 func CreateUser(ctx context.Context, user *model.User, passwordHash string) error{
 
 	err := database.DB.QueryRowContext(ctx,
-	`INSERT INTO users (username, email, password_hash, pekerjaan_alumni_id,role,)
+	`INSERT INTO users (username, email,password_hash,role)
 		VALUES ($1, $2, $3, $4) RETURNING id, created_at`,
 		user.Username, user.Email, passwordHash,user.Role).Scan(&user.ID, &user.CreatedAt)
 
