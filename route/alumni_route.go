@@ -7,17 +7,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterAlumniRoutes(router fiber.Router) {
-    alumni := router.Group("/alumni")
 
-    // alumni.Get("/", service.GetAllAlumni)
-    alumni.Get("/:id", service.GetAlumniByID)
 
-    alumni.Get("/", service.GetAllAlumniShorting)
+func RegisterAlumniRoutes(router fiber.Router, alumniSvc service.IAlumniService) {
+	alumni := router.Group("/alumni")
+	alumni.Post("/", middleware.AdminOnly(), alumniSvc.CreateAlumni)
+    alumni.Get("/", alumniSvc.GetAllAlumni) // Semua user bisa lihat
+    alumni.Get("/:id", alumniSvc.GetAlumniByID) // Semua user bisa lihat
+    alumni.Put("/:id", middleware.AdminOnly(), alumniSvc.UpdateAlumni)
+    alumni.Delete("/:id", middleware.AdminOnly(), alumniSvc.DeleteAlumni)
 
-    alumni.Post("/", middleware.AdminOnly(), service.CreateAlumni)
-    alumni.Put("/:id", middleware.AdminOnly(), service.UpdateAlumni)
-    alumni.Delete("/:id",middleware.AdminOnly(),service.DeleteAlumni)
 
-    
 }

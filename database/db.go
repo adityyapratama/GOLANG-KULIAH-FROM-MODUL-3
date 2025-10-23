@@ -1,31 +1,48 @@
 package database
 
 import (
-	"database/sql"
+	"context"
+	"fmt"
 	"log"
 	"os"
+	"time"
 
-	_ "github.com/lib/pq"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var DB *sql.DB
-
-func ConnectDB() error {
-	dsn := os.Getenv("DB_DSN")
-	if dsn == "" {
-		log.Fatal("❌ DB_DSN tidak ditemukan di .env")
+func ConnectDB() (*mongo.Database, error){
+	mongoURI := os.Getenv("MONGODB_URI")
+	if mongoURI == "" {
+		mongoURI = "mongodb://localhost:27017" // Default jika .env tidak ada
+		log.Println("Peringatan: MONGODB_URI tidak disetel. Menggunakan default:", mongoURI)
 	}
 
-	db, err := sql.Open("postgres", dsn)
+	
+	dbName := os.Getenv("DATABASE_NAME")
+	if dbName == "" {
+		log.Fatal("❌ DATABASE_NAME tidak ditemukan di .env")
+	}
+
+	clientOptions := options.Client().ApplyURI(mongoURI)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("koneksi ke MongoDB gagal: %v", err)
 	}
 
-	if err := db.Ping(); err != nil {
-		return err
+	err = client.Ping(ctx,nil)
+	if err !=nil{
+		return nil, fmt.Errorf("gagal konek ke MongoDB: %v", err)
 	}
 
-	DB = db
-	log.Println("✅ Berhasil terhubung ke PostgreSQL")
-	return nil
+	fmt.Println("berhasil konek ke MongoDB")
+	
+	return client.Database(dbName), nil
+
+
+	
 }

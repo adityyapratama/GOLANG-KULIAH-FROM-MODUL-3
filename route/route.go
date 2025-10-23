@@ -7,18 +7,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterRoutes(app *fiber.App) {
+func RegisterRoutes(app *fiber.App,authSvc service.IAuthService, alumniSvc service.IAlumniService,pekerjaanSvc service.IPekerjaanService,) {
+	RegisterAuthRoutes(app, authSvc)
 
-	RegisterAuthRoutes(app)
-	api := app.Group("/api", middleware.AuthRequired())
-	
-	api.Get("/profile", service.GetProfile)
-	api.Get("/me/pekerjaan", service.Getuserbyalumni)
-	
+	api := app.Group("api",middleware.AuthRequired())
+	RegisterAlumniRoutes(api, alumniSvc)
+	RegisterPekerjaanRoutes(api, pekerjaanSvc)
 
-	RegisterAlumniRoutes(api)
-	RegisterMahasiswaRoutes(api)
-	RegisterAlumniPekerjaanRoutes(api)
 
-	RegisterAuthRoutes(app)
 }

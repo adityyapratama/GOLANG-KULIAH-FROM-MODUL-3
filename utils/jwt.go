@@ -11,7 +11,7 @@ var jwtSecret = []byte("your-secret-key-min-32-characters-long")
 
 func GenerateToken(user model.User) (string, error) {
     claims := model.JWTClaims{
-        UserID:   user.ID,
+        UserID:   user.ID.Hex(),
         Username: user.Username,
         Role:     user.Role,
         RegisteredClaims: jwt.RegisteredClaims{

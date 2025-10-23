@@ -1,34 +1,44 @@
 package model
 
-import "time"
+import (
+	"time"
+	"go.mongodb.org/mongo-driver/bson/primitive" 
+)
 
 type Alumni struct {
-	ID         int       `json:"id"`
-	UserID     int        `json:"user_id"`
+	ID         primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	UserID     primitive.ObjectID `bson:"user_id" json:"user_id"`
+	NIM        string    `bson:"nim" json:"nim"`
+	Nama       string    `bson:"nama" json:"nama"`
+	Jurusan    string    `bson:"jurusan" json:"jurusan"`
+	Angkatan   int       `bson:"angkatan" json:"angkatan"`
+	TahunLulus int       `bson:"tahun_lulus" json:"tahun_lulus"`
+	Email      string    `bson:"email" json:"email"`
+	NoTelepon  *string   `bson:"no_telepon,omitempty" json:"no_telepon,omitempty"`
+	Alamat     *string   `bson:"alamat,omitempty" json:"alamat,omitempty"`
+	CreatedAt  time.Time `bson:"created_at" json:"created_at"`
+	UpdatedAt  time.Time `bson:"updated_at" json:"updated_at"`
+	DeletedAt  *time.Time `bson:"deleted_at,omitempty" json:"deleted_at,omitempty"`
+}
+
+type CreateAlumniRequest struct {
 	NIM        string    `json:"nim"`
 	Nama       string    `json:"nama"`
 	Jurusan    string    `json:"jurusan"`
 	Angkatan   int       `json:"angkatan"`
 	TahunLulus int       `json:"tahun_lulus"`
 	Email      string    `json:"email"`
-	NoTelepon  *string   `json:"no_telepon"`
-	Alamat     *string   `json:"alamat"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
-	DeletedAt  *time.Time `json:"deleted_at,omitempty"`
-	
+	NoTelepon  *string   `json:"no_telepon,omitempty"`
+	Alamat     *string   `json:"alamat,omitempty"`
 }
 
-// Request for filtering alumni employment status
-// type AlumniEmploymentStatusRequest struct {
-// 	ID                *int    json:"id" query:"id"
-// 	Nama              *string json:"nama" query:"nama"
-// 	Jurusan           *string json:"jurusan" query:"jurusan"
-// 	Angkatan          *int    json:"angkatan" query:"angkatan"
-// 	BidangIndustri    *string json:"bidang_industri" query:"bidang_industri"
-// 	NamaPerusahaan    *string json:"nama_perusahaan" query:"nama_perusahaan"
-// 	PosisiJabatan     *string json:"posisi_jabatan" query:"posisi_jabatan"
-// 	LebihDari1Tahun   *int    json:"lebih_dari_1_tahun" query:"lebih_dari_1_tahun"
-// 	Page              int     json:"page" query:"page"
-// 	Limit             int     json:"limit" query:"limit"
-// }
+type UpdateAlumniRequest struct {
+	NIM        string    `json:"nim"`
+	Nama       string    `json:"nama"`
+	Jurusan    string    `json:"jurusan"`
+	Angkatan   int       `json:"angkatan"`
+	TahunLulus int       `json:"tahun_lulus"`
+	Email      string    `json:"email"`
+	NoTelepon  *string   `json:"no_telepon,omitempty"`
+	Alamat     *string   `json:"alamat,omitempty"`
+}

@@ -1,9 +1,10 @@
 package main
 
 import (
+	"golang-kuliah-from-modul-3/app/repository"
+	"golang-kuliah-from-modul-3/app/service"
 	"golang-kuliah-from-modul-3/config"
 	"golang-kuliah-from-modul-3/database"
-	
 
 	"log"
 	"os"
@@ -18,16 +19,23 @@ func main() {
 		log.Println("⚠️ Tidak menemukan file .env, pakai environment system")
 	}
 
-	
-	if err := database.ConnectDB(); err != nil {
+	db, err :=database.ConnectDB()
+	if err != nil {
 		log.Fatal("❌ Gagal konek DB:", err)
 	}
-	defer database.DB.Close()
+
+	authRepo := repository.NewAuthRepository(db)
+	alumniRepo := repository.NewAlumniRepository(db)
+	pekerjaanRepo := repository.NewPekerjaanRepository(db)
+
+	authSvc := service.NewAuthService(authRepo)
+
+	alumniSvc := service.NewAlumniService(alumniRepo)
+	pekerjaanSvc := service.NewPekerjaanService(pekerjaanRepo, alumniRepo)
+
+	app := config.NewApp(authSvc, alumniSvc,pekerjaanSvc)
 
 	
-	app := config.NewApp()
-	
-
 	
 	port := os.Getenv("APP_PORT")
 	if port == "" {
