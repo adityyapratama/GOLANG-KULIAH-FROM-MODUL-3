@@ -14,7 +14,7 @@ import (
 func ConnectDB() (*mongo.Database, error){
 	mongoURI := os.Getenv("MONGODB_URI")
 	if mongoURI == "" {
-		mongoURI = "mongodb://localhost:27017" // Default jika .env tidak ada
+		mongoURI = "mongodb://localhost:27017" 
 		log.Println("Peringatan: MONGODB_URI tidak disetel. Menggunakan default:", mongoURI)
 	}
 

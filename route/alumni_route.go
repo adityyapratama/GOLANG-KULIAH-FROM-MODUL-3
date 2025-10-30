@@ -12,8 +12,8 @@ import (
 func RegisterAlumniRoutes(router fiber.Router, alumniSvc service.IAlumniService) {
 	alumni := router.Group("/alumni")
 	alumni.Post("/", middleware.AdminOnly(), alumniSvc.CreateAlumni)
-    alumni.Get("/", alumniSvc.GetAllAlumni) // Semua user bisa lihat
-    alumni.Get("/:id", alumniSvc.GetAlumniByID) // Semua user bisa lihat
+    alumni.Get("/", alumniSvc.GetAllAlumni) 
+    alumni.Get("/:id", alumniSvc.GetAlumniByID) 
     alumni.Put("/:id", middleware.AdminOnly(), alumniSvc.UpdateAlumni)
     alumni.Delete("/:id", middleware.AdminOnly(), alumniSvc.DeleteAlumni)
 
