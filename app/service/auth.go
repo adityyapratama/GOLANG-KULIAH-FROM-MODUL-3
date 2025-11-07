@@ -119,7 +119,7 @@ func (s *AuthService) Register(c *fiber.Ctx) error {
 	user := &model.User{
 		Username:     req.Username,
 		Email:        req.Email,
-		PasswordHash: passwordHash, // Masukkan hash ke model
+		PasswordHash: passwordHash, 
 		Role:         req.Role,
 	}
 

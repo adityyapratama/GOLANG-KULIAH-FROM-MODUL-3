@@ -16,7 +16,7 @@ import (
 // @version         1.0
 // @description     Dokumentasi API untuk Mahasiswa
 // @host      localhost:3000
-// @BasePath  /api/v1
+// @BasePath  /
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization

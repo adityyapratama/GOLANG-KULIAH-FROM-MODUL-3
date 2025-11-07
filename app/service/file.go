@@ -37,7 +37,19 @@ func NewFileService(repo repository.FileRepository, uploadPath string) FileServi
 	}
 }
 
-// upload File
+// UploadFile godoc
+// @Summary      Upload file generik
+// @Description  Meng-upload file (jpg, png, pdf) dengan batas ukuran 10MB.
+// @Tags         Files
+// @Accept       multipart/form-data
+// @Produce      json
+// @Security     BearerAuth
+// @Param        file formData file true "File yang akan di-upload (Maks 10MB, Tipe: jpg/png/pdf)"
+// @Success      201  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /files/upload [post]
 func (s *fileService) UploadFile(c *fiber.Ctx) error {
 	fileHeader, err := c.FormFile("file")
 	if err != nil {
@@ -142,6 +154,19 @@ func (s *fileService) UploadFile(c *fiber.Ctx) error {
 }
 
 
+
+
+// GetAllFiles godoc
+// @Summary      Dapatkan semua metadata file
+// @Description  Mengambil daftar semua metadata file yang ada di database.
+// @Tags         Files
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /files [get]
 func (s *fileService) GetAllFiles(c *fiber.Ctx) error {
 	files, err := s.repo.FindAll()
 	if err != nil {
@@ -165,6 +190,20 @@ func (s *fileService) GetAllFiles(c *fiber.Ctx) error {
 }
 
 
+
+
+// GetFileByID godoc
+// @Summary      Dapatkan metadata file berdasarkan ID
+// @Description  Mengambil metadata file tunggal berdasarkan ID (MongoDB ObjectID).
+// @Tags         Files
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      string  true  "File ID (ObjectID)"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Router       /files/{id} [get]
 func (s *fileService) GetFileByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -184,7 +223,20 @@ func (s *fileService) GetFileByID(c *fiber.Ctx) error {
 	})
 }
 
-
+// DeleteFile godoc
+// @Summary      Hapus file
+// @Description  Menghapus file dari database dan storage. Admin bisa menghapus file siapa saja, user hanya bisa menghapus file milik sendiri.
+// @Tags         Files
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      string  true  "File ID (ObjectID)"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      403  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /files/{id} [delete]
 func (s *fileService) DeleteFile(c *fiber.Ctx) error {
 	fileID := c.Params("id")
 
@@ -275,6 +327,20 @@ func (s *fileService) toFileResponse(file *model.File) *model.FileResponse {
 }
 
 // upload foto max 1mb
+// UploadFoto godoc
+// @Summary      Upload Foto
+// @Description  Endpoint khusus untuk upload foto (profil). Batas 1MB, Tipe: jpg/jpeg/png.
+// @Tags         Files
+// @Accept       multipart/form-data
+// @Produce      json
+// @Security     BearerAuth
+// @Param        file formData file true "File foto (Maks 1MB, Tipe: jpg/jpeg/png)"
+// @Param        user_id path string false "Opsional: Target User ID (hanya Admin). Jika kosong, default ke user yang sedang login."
+// @Success      201  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /files/foto [post]
 func (s *fileService) UploadFoto(c *fiber.Ctx) error {
 	return s.uploadWithValidation(c, "foto", 1*1024*1024, map[string]bool{
 		"image/jpeg": true,
@@ -284,6 +350,20 @@ func (s *fileService) UploadFoto(c *fiber.Ctx) error {
 }
 
 //upload Sertifikat - Max 2MB, pdf 
+// UploadSertifikat godoc
+// @Summary      Upload Sertifikat
+// @Description  Endpoint khusus untuk upload sertifikat. Batas 2MB, Tipe: pdf.
+// @Tags         Files
+// @Accept       multipart/form-data
+// @Produce      json
+// @Security     BearerAuth
+// @Param        file formData file true "File sertifikat (Maks 2MB, Tipe: pdf)"
+// @Param        user_id path string false "Opsional: Target User ID (hanya Admin). Jika kosong, default ke user yang sedang login."
+// @Success      201  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /files/sertifikat [post]
 func (s *fileService) UploadSertifikat(c *fiber.Ctx) error {
 	return s.uploadWithValidation(c, "sertifikat", 2*1024*1024, map[string]bool{
 		"application/pdf": true,

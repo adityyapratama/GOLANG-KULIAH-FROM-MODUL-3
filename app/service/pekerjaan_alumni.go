@@ -44,7 +44,20 @@ func parseTanggal(tgl string) (time.Time, error) {
 
 
 
-
+// CreatePekerjaan godoc
+// @Summary      Tambah data pekerjaan baru
+// @Description  Menambahkan data pekerjaan baru yang terasosiasi dengan seorang alumni.
+// @Tags         Pekerjaan
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body model.CreatePekerjaanRequest true "Payload Data Pekerjaan"
+// @Success      201  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /pekerjaan [post]
 func (s *pekerjaanService) CreatePekerjaan(c *fiber.Ctx) error {
 	var req model.CreatePekerjaanRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -107,6 +120,19 @@ func (s *pekerjaanService) CreatePekerjaan(c *fiber.Ctx) error {
 }
 
 
+// GetPekerjaanByID godoc
+// @Summary      Dapatkan pekerjaan berdasarkan ID
+// @Description  Mengambil detail data satu pekerjaan berdasarkan ID (MongoDB ObjectID).
+// @Tags         Pekerjaan
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      string  true  "Pekerjaan ID (ObjectID)"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /pekerjaan/{id} [get]
 func (s *pekerjaanService) GetPekerjaanByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 	pekerjaan, err := s.pekerjaanRepo.GetPekerjaanByID(c.Context(), id)
@@ -120,6 +146,21 @@ func (s *pekerjaanService) GetPekerjaanByID(c *fiber.Ctx) error {
 }
 
 
+
+
+// GetPekerjaanByAlumniID godoc
+// @Summary      Dapatkan daftar pekerjaan berdasarkan Alumni ID
+// @Description  Mengambil semua data pekerjaan yang dimiliki oleh satu alumni.
+// @Tags         Pekerjaan
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        alumni_id   path      string  true  "Alumni ID (ObjectID)"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /pekerjaan/alumni/{alumni_id} [get]
 func (s *pekerjaanService) GetPekerjaanByAlumniID(c *fiber.Ctx) error {
 	alumniID := c.Params("alumni_id")
 	alumniObjID, err := primitive.ObjectIDFromHex(alumniID)
@@ -134,6 +175,19 @@ func (s *pekerjaanService) GetPekerjaanByAlumniID(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"success": true, "data": list})
 }
 
+
+
+// GetAllPekerjaan godoc
+// @Summary      Dapatkan semua data pekerjaan
+// @Description  Mengambil daftar lengkap semua data pekerjaan yang ada di database.
+// @Tags         Pekerjaan
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /pekerjaan [get]
 func (s *pekerjaanService) GetAllPekerjaan(c *fiber.Ctx) error {
 	list, err := s.pekerjaanRepo.GetAllPekerjaan(c.Context())
 	if err != nil {
@@ -143,6 +197,22 @@ func (s *pekerjaanService) GetAllPekerjaan(c *fiber.Ctx) error {
 }
 
 
+
+// UpdatePekerjaan godoc
+// @Summary      Update data pekerjaan
+// @Description  Memperbarui data pekerjaan yang sudah ada berdasarkan ID.
+// @Tags         Pekerjaan
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id      path   string           true  "Pekerjaan ID (ObjectID)"
+// @Param        request body   model.UpdatePekerjaanRequest  true  "Payload Data Pekerjaan yang akan diupdate"
+// @Success      200     {object}  map[string]interface{}
+// @Failure      400     {object}  map[string]interface{}
+// @Failure      401     {object}  map[string]interface{}
+// @Failure      404     {object}  map[string]interface{}
+// @Failure      500     {object}  map[string]interface{}
+// @Router       /pekerjaan/{id} [put]
 func (s *pekerjaanService) UpdatePekerjaan(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var req model.UpdatePekerjaanRequest
@@ -188,6 +258,23 @@ func (s *pekerjaanService) UpdatePekerjaan(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"success": true, "message": "Pekerjaan berhasil diupdate"})
 }
 
+
+
+
+
+// DeletePekerjaan godoc
+// @Summary      Hapus data pekerjaan
+// @Description  Menghapus data pekerjaan berdasarkan ID (MongoDB ObjectID).
+// @Tags         Pekerjaan
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      string  true  "Pekerjaan ID (ObjectID)"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /pekerjaan/{id} [delete]
 func (s *pekerjaanService) DeletePekerjaan(c *fiber.Ctx) error {
 	id := c.Params("id")
 	rows, err := s.pekerjaanRepo.DeletePekerjaan(c.Context(), id)

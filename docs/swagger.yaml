@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /
 definitions:
   model.Alumni:
     properties:
@@ -29,6 +29,29 @@ definitions:
       user_id:
         type: string
     type: object
+  model.CreatePekerjaanRequest:
+    properties:
+      alumni_id:
+        type: string
+      bidang_industri:
+        type: string
+      deskripsi_pekerjaan:
+        type: string
+      gaji_range:
+        type: string
+      lokasi_kerja:
+        type: string
+      nama_perusahaan:
+        type: string
+      posisi_jabatan:
+        type: string
+      status_pekerjaan:
+        type: string
+      tanggal_mulai_kerja:
+        type: string
+      tanggal_selesai_kerja:
+        type: string
+    type: object
   model.LoginRequest:
     properties:
       password:
@@ -42,6 +65,39 @@ definitions:
         type: string
       user:
         $ref: '#/definitions/model.User'
+    type: object
+  model.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      role:
+        description: '''admin'' atau ''user'''
+        type: string
+      username:
+        type: string
+    type: object
+  model.UpdatePekerjaanRequest:
+    properties:
+      bidang_industri:
+        type: string
+      deskripsi_pekerjaan:
+        type: string
+      gaji_range:
+        type: string
+      lokasi_kerja:
+        type: string
+      nama_perusahaan:
+        type: string
+      posisi_jabatan:
+        type: string
+      status_pekerjaan:
+        type: string
+      tanggal_mulai_kerja:
+        type: string
+      tanggal_selesai_kerja:
+        type: string
     type: object
   model.User:
     properties:
@@ -252,6 +308,239 @@ paths:
       summary: Update data alumni
       tags:
       - Alumni
+  /files:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil daftar semua metadata file yang ada di database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Dapatkan semua metadata file
+      tags:
+      - Files
+  /files/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus file dari database dan storage. Admin bisa menghapus
+        file siapa saja, user hanya bisa menghapus file milik sendiri.
+      parameters:
+      - description: File ID (ObjectID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Hapus file
+      tags:
+      - Files
+    get:
+      consumes:
+      - application/json
+      description: Mengambil metadata file tunggal berdasarkan ID (MongoDB ObjectID).
+      parameters:
+      - description: File ID (ObjectID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Dapatkan metadata file berdasarkan ID
+      tags:
+      - Files
+  /files/foto:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 'Endpoint khusus untuk upload foto (profil). Batas 1MB, Tipe: jpg/jpeg/png.'
+      parameters:
+      - description: 'File foto (Maks 1MB, Tipe: jpg/jpeg/png)'
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 'Opsional: Target User ID (hanya Admin). Jika kosong, default
+          ke user yang sedang login.'
+        in: path
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload Foto
+      tags:
+      - Files
+  /files/sertifikat:
+    post:
+      consumes:
+      - multipart/form-data
+      description: 'Endpoint khusus untuk upload sertifikat. Batas 2MB, Tipe: pdf.'
+      parameters:
+      - description: 'File sertifikat (Maks 2MB, Tipe: pdf)'
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: 'Opsional: Target User ID (hanya Admin). Jika kosong, default
+          ke user yang sedang login.'
+        in: path
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload Sertifikat
+      tags:
+      - Files
+  /files/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Meng-upload file (jpg, png, pdf) dengan batas ukuran 10MB.
+      parameters:
+      - description: 'File yang akan di-upload (Maks 10MB, Tipe: jpg/png/pdf)'
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload file generik
+      tags:
+      - Files
   /login:
     post:
       consumes:
@@ -287,6 +576,281 @@ paths:
             additionalProperties: true
             type: object
       summary: Masuk ke sistem
+      tags:
+      - Auth
+  /pekerjaan:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil daftar lengkap semua data pekerjaan yang ada di database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Dapatkan semua data pekerjaan
+      tags:
+      - Pekerjaan
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data pekerjaan baru yang terasosiasi dengan seorang
+        alumni.
+      parameters:
+      - description: Payload Data Pekerjaan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreatePekerjaanRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Tambah data pekerjaan baru
+      tags:
+      - Pekerjaan
+  /pekerjaan/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menghapus data pekerjaan berdasarkan ID (MongoDB ObjectID).
+      parameters:
+      - description: Pekerjaan ID (ObjectID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Hapus data pekerjaan
+      tags:
+      - Pekerjaan
+    get:
+      consumes:
+      - application/json
+      description: Mengambil detail data satu pekerjaan berdasarkan ID (MongoDB ObjectID).
+      parameters:
+      - description: Pekerjaan ID (ObjectID)
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Dapatkan pekerjaan berdasarkan ID
+      tags:
+      - Pekerjaan
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data pekerjaan yang sudah ada berdasarkan ID.
+      parameters:
+      - description: Pekerjaan ID (ObjectID)
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Payload Data Pekerjaan yang akan diupdate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdatePekerjaanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update data pekerjaan
+      tags:
+      - Pekerjaan
+  /pekerjaan/alumni/{alumni_id}:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil semua data pekerjaan yang dimiliki oleh satu alumni.
+      parameters:
+      - description: Alumni ID (ObjectID)
+        in: path
+        name: alumni_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Dapatkan daftar pekerjaan berdasarkan Alumni ID
+      tags:
+      - Pekerjaan
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Membuat akun baru untuk alumni atau admin.
+      parameters:
+      - description: Data Registrasi
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Mendaftarkan user baru
       tags:
       - Auth
 securityDefinitions:
