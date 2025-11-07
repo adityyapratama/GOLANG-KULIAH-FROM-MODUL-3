@@ -33,6 +33,21 @@ func NewAlumniService(
 	}
 }
 
+
+
+// CreateAlumni godoc
+// @Summary      Tambah data alumni baru
+// @Description  Menambahkan data alumni ke database. Memerlukan token admin.
+// @Tags         Alumni
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        request body model.Alumni true "Payload Data Alumni"
+// @Success      201  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /alumni [post]
 func (s *alumniService) CreateAlumni(c *fiber.Ctx) error {
 	var req model.CreateAlumniRequest
 	if err := c.BodyParser(&req); err != nil {
@@ -53,13 +68,13 @@ func (s *alumniService) CreateAlumni(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "NIM, Nama, dan Email wajib diisi"})
 	}
 
-	// Logika ini sudah BENAR
+	
 	_, err = s.alumniRepo.GetAlumniByUserID(c.Context(), userIDHex)
 	if err == nil {
-		// Alumni sudah ada, kirim 409 Conflict
+		
 		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Alumni dengan user ID tersebut sudah ada"})
 	} else if err != mongo.ErrNoDocuments {
-		// Terjadi error database LAINNYA, jangan lanjut
+		
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Gagal mengecek data alumni"})
 	}
 
@@ -85,6 +100,18 @@ func (s *alumniService) CreateAlumni(c *fiber.Ctx) error {
 	})
 }
 
+
+// GetAlumniByID godoc
+// @Summary      Dapatkan alumni berdasarkan ID
+// @Description  Mengambil detail data satu alumni berdasarkan ID yang diberikan.
+// @Tags         Alumni
+// @Accept       json
+// @Produce      json
+// @Param        id   path      int  true  "Alumni ID"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Router       /alumni/{id} [get]
 func (s *alumniService) GetAlumniByID(c *fiber.Ctx) error {
 	id := c.Params("id")
 
@@ -99,6 +126,16 @@ func (s *alumniService) GetAlumniByID(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"success": true, "data": alumni})
 }
 
+
+// GetAllAlumni godoc
+// @Summary      Dapatkan semua data alumni (Simple)
+// @Description  Mengambil daftar lengkap semua alumni tanpa pagination (Endpoint ini mungkin tidak aktif jika tertutup oleh GetAllAlumniShorting di route).
+// @Tags         Alumni
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /alumni [get]
 func (s *alumniService) GetAllAlumni(c *fiber.Ctx) error {
 	list, err := s.alumniRepo.GetAllAlumni(c.Context())
 	if err != nil {
@@ -107,6 +144,24 @@ func (s *alumniService) GetAllAlumni(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{"success": true, "data": list})
 }
 
+
+
+
+// UpdateAlumni godoc
+// @Summary      Update data alumni
+// @Description  Memperbarui data alumni yang sudah ada berdasarkan ID. Memerlukan token admin.
+// @Tags         Alumni
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id      path   int           true  "Alumni ID"
+// @Param        request body   model.Alumni  true  "Payload Data Alumni yang akan diupdate"
+// @Success      200     {object}  map[string]interface{}
+// @Failure      400     {object}  map[string]interface{}
+// @Failure      401     {object}  map[string]interface{}
+// @Failure      404     {object}  map[string]interface{}
+// @Failure      500     {object}  map[string]interface{}
+// @Router       /alumni/{id} [put]
 func (s *alumniService) UpdateAlumni(c *fiber.Ctx) error {
 	id := c.Params("id")
 	var req model.UpdateAlumniRequest
@@ -140,8 +195,24 @@ func (s *alumniService) UpdateAlumni(c *fiber.Ctx) error {
 		"message": "alumni berhasil di update"})
 }
 
+
+
+// DeleteAlumni godoc
+// @Summary      Hapus data alumni (Soft Delete)
+// @Description  Menandai data alumni sebagai terhapus tanpa menghilangkannya dari database. Memerlukan token admin.
+// @Tags         Alumni
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      int  true  "Alumni ID"
+// @Success      200  {object}  map[string]interface{}
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      404  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /alumni/{id} [delete]
 func (s *alumniService) DeleteAlumni(c *fiber.Ctx) error {
-	// PERBAIKAN 1: Tambahkan ':='
+	
 	id := c.Params("id")
 
 	rows, err := s.alumniRepo.DeleteAlumni(c.Context(), id)
@@ -159,7 +230,7 @@ func (s *alumniService) DeleteAlumni(c *fiber.Ctx) error {
 	})
 }
 
-// PERBAIKAN 2: Tambahkan implementasi GetAlumniByUserID yang hilang
+// Tambahkan implementasi GetAlumniByUserID yang hilang
 func (s *alumniService) GetAlumniByUserID(c *fiber.Ctx) error {
 	// Asumsi kita ambil 'userid' dari URL param (parameter rute)
 	userID := c.Params("userid")

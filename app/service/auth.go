@@ -11,81 +11,96 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-
-
-type IAuthService interface{
+type IAuthService interface {
 	Login(c *fiber.Ctx) error
 	Register(c *fiber.Ctx) error
 }
 
-type AuthService struct{
+type AuthService struct {
 	repo repository.IAuthRepository
 }
 
-func NewAuthService(repo repository.IAuthRepository) IAuthService{
+func NewAuthService(repo repository.IAuthRepository) IAuthService {
 	return &AuthService{repo: repo}
 }
 
-
+// Login godoc
+// @Summary      Masuk ke sistem
+// @Description  Melakukan autentikasi user dan mengembalikan token JWT.
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        request body model.LoginRequest true "Credential Login"
+// @Success      200  {object}  model.LoginResponse
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      401  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /login [post]
 func (s *AuthService) Login(c *fiber.Ctx) error {
-    var req model.LoginRequest
+	var req model.LoginRequest
 
-    if err := c.BodyParser(&req); err != nil {
-        return c.Status(400).JSON(fiber.Map{
-            "error": "request body tidak valid"})
-    }
-    if req.Username == "" || req.Password == "" {
-        return c.Status(400).JSON(fiber.Map{
-            "error": "username dan password kudu di isi"})
-    }
-    user, err := s.repo.GetUserByLogin(c.Context(), req.Username)
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "request body tidak valid"})
+	}
+	if req.Username == "" || req.Password == "" {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "username dan password kudu di isi"})
+	}
+	user, err := s.repo.GetUserByLogin(c.Context(), req.Username)
 
-    if err != nil {
-        if err == mongo.ErrNoDocuments {
-            return c.Status(401).JSON(fiber.Map{
-                "error": "username atau password salah"})
-        }
-        return c.Status(500).JSON(fiber.Map{
-            "error": "error server"})
-    }
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return c.Status(401).JSON(fiber.Map{
+				"error": "username atau password salah"})
+		}
+		return c.Status(500).JSON(fiber.Map{
+			"error": "error server"})
+	}
 
-    if user == nil {
-        return c.Status(401).JSON(fiber.Map{
-            "error": "username atau password salah"})
-    }
+	if user == nil {
+		return c.Status(401).JSON(fiber.Map{
+			"error": "username atau password salah"})
+	}
 
-    if !utils.CheckPassword(req.Password, user.PasswordHash) {
-        return c.Status(401).JSON(fiber.Map{"error": "Username atau password salah"})
-    }
+	if !utils.CheckPassword(req.Password, user.PasswordHash) {
+		return c.Status(401).JSON(fiber.Map{"error": "Username atau password salah"})
+	}
 
-    
-    token, err := utils.GenerateToken(*user) 
-    
-    
-    if err != nil { 
-        return c.Status(500).JSON(fiber.Map{"error": "Gagal membuat token"})
-    }
+	token, err := utils.GenerateToken(*user)
 
-    
-    user.PasswordHash = "" 
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Gagal membuat token"})
+	}
 
-    
-    response := model.LoginResponse{User: *user, Token: token} 
-    
-    return c.JSON(fiber.Map{
-        "success": true,
-        "message": "login berhasil",
-        "data":    response})
+	user.PasswordHash = ""
 
-    
+	response := model.LoginResponse{User: *user, Token: token}
+
+	return c.JSON(fiber.Map{
+		"success": true,
+		"message": "login berhasil",
+		"data":    response})
+
 }
 
-
-func (s *AuthService)Register (c *fiber.Ctx) error {
+// Register godoc
+// @Summary      Mendaftarkan user baru
+// @Description  Membuat akun baru untuk alumni atau admin.
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        request body model.RegisterRequest true "Data Registrasi"
+// @Success      201  {object}  model.User
+// @Failure      400  {object}  map[string]interface{}
+// @Failure      409  {object}  map[string]interface{}
+// @Failure      500  {object}  map[string]interface{}
+// @Router       /register [post]
+func (s *AuthService) Register(c *fiber.Ctx) error {
 
 	var req model.RegisterRequest
-	if err :=c.BodyParser(&req); err !=nil{
-		return c.Status(400).JSON(fiber.Map{"error":"Request body tidak valid"})
+	if err := c.BodyParser(&req); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Request body tidak valid"})
 	}
 	if req.Username == "" || req.Email == "" || req.Password == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "Username, email, dan password harus diisi"})
@@ -109,15 +124,14 @@ func (s *AuthService)Register (c *fiber.Ctx) error {
 	}
 
 	if err := s.repo.CreateUser(c.Context(), user); err != nil {
-		if mongo.IsDuplicateKeyError(err){
+		if mongo.IsDuplicateKeyError(err) {
 			return c.Status(409).JSON(fiber.Map{"error": "Username atau email sudah terdaftar"})
 		}
 		log.Println("!!! ERROR SAAT CREATE USER:", err)
-		return  c.Status(500).JSON(fiber.Map{"error":"gagal membuat user"})
-		}
+		return c.Status(500).JSON(fiber.Map{"error": "gagal membuat user"})
+	}
 
-		
-		user.PasswordHash = ""
-		return c.Status(201).JSON(fiber.Map{"success": true, "message": "User berhasil didaftarkan", "data": user})	
+	user.PasswordHash = ""
+	return c.Status(201).JSON(fiber.Map{"success": true, "message": "User berhasil didaftarkan", "data": user})
 
 }

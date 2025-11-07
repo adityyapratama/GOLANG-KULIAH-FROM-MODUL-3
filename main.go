@@ -12,6 +12,15 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// @title           Mahasiswa, Alumni, pekerjaan_alumni and upload file alumni API Documentation
+// @version         1.0
+// @description     Dokumentasi API untuk Mahasiswa
+// @host      localhost:3000
+// @BasePath  /api/v1
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @schemes http
 func main() {
 
 	if err := godotenv.Load(); err != nil {

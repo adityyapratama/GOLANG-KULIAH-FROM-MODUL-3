@@ -1,0 +1,297 @@
+basePath: /api/v1
+definitions:
+  model.Alumni:
+    properties:
+      alamat:
+        type: string
+      angkatan:
+        type: integer
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      jurusan:
+        type: string
+      nama:
+        type: string
+      nim:
+        type: string
+      no_telepon:
+        type: string
+      tahun_lulus:
+        type: integer
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    type: object
+  model.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  model.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      deleted_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      role:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: Dokumentasi API untuk Mahasiswa
+  title: Mahasiswa, Alumni, pekerjaan_alumni and upload file alumni API Documentation
+  version: "1.0"
+paths:
+  /alumni:
+    get:
+      consumes:
+      - application/json
+      description: Mengambil daftar lengkap semua alumni tanpa pagination (Endpoint
+        ini mungkin tidak aktif jika tertutup oleh GetAllAlumniShorting di route).
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Dapatkan semua data alumni (Simple)
+      tags:
+      - Alumni
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data alumni ke database. Memerlukan token admin.
+      parameters:
+      - description: Payload Data Alumni
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Alumni'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Tambah data alumni baru
+      tags:
+      - Alumni
+  /alumni/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Menandai data alumni sebagai terhapus tanpa menghilangkannya dari
+        database. Memerlukan token admin.
+      parameters:
+      - description: Alumni ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Hapus data alumni (Soft Delete)
+      tags:
+      - Alumni
+    get:
+      consumes:
+      - application/json
+      description: Mengambil detail data satu alumni berdasarkan ID yang diberikan.
+      parameters:
+      - description: Alumni ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Dapatkan alumni berdasarkan ID
+      tags:
+      - Alumni
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data alumni yang sudah ada berdasarkan ID. Memerlukan
+        token admin.
+      parameters:
+      - description: Alumni ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Payload Data Alumni yang akan diupdate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.Alumni'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update data alumni
+      tags:
+      - Alumni
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Melakukan autentikasi user dan mengembalikan token JWT.
+      parameters:
+      - description: Credential Login
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Masuk ke sistem
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
