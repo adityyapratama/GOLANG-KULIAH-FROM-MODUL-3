@@ -135,3 +135,5 @@ func (s *AuthService) Register(c *fiber.Ctx) error {
 	return c.Status(201).JSON(fiber.Map{"success": true, "message": "User berhasil didaftarkan", "data": user})
 
 }
+
+
